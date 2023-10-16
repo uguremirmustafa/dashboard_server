@@ -2,11 +2,6 @@ import db from '@/db';
 import { User } from '@/lib/types';
 import bcrypt from 'bcrypt';
 
-interface Credientials {
-  password: string;
-  email: string;
-}
-
 export async function registerUser(userBody: User) {
   const { email, password } = userBody;
   const user = await getUser(email);
@@ -34,24 +29,10 @@ export async function getUsers() {
   return res;
 }
 export async function getUserByEmail(email: User['email']) {
-  const result = await db.user.findMany({ where: { email } });
-  if (result.length === 1) {
-    return result[0];
-  } else if (result.length > 1) {
-    console.log('multiple users found by same email');
-    return null;
-  } else {
-    console.log(`no user found for the email: ${email}`);
-    return null;
-  }
+  return db.user.findFirstOrThrow({ where: { email } });
 }
 export async function getUser(email: User['email']) {
-  try {
-    return getUserByEmail(email);
-  } catch (error) {
-    console.log(error);
-    return null;
-  }
+  return getUserByEmail(email);
 }
 export async function saveUser(user: User) {
   try {
