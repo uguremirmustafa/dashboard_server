@@ -1,0 +1,43 @@
+version: '3.9'
+
+services:
+  dashboard_db:
+    container_name: dashboard_db
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - dashboard_db:/var/lib/postgresql/data
+    networks:
+      - webnet
+  dashboard_redis:
+    container_name: dashboard_redis
+    image: redis
+    ports:
+      - '6379:6379'
+    networks:
+      - webnet
+  pgadmin:
+    container_name: dashboard_pgadmin
+    image: dpage/pgadmin4
+    restart: always
+    ports:
+      - '5000:80'
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    volumes:
+      - pgadmin-dashboard_db:/var/lib/pgadmin
+    networks:
+      - webnet
+    logging:
+      driver: none
+volumes:
+  dashboard_db: {}
+  pgadmin-dashboard_db: {}
+networks:
+  webnet:
