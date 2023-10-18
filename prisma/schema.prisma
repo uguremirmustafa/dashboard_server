@@ -11,30 +11,23 @@ datasource db {
 }
 
 model Link {
-  id         Int                @id @default(autoincrement())
-  createdAt  DateTime           @default(now())
-  updatedAt  DateTime           @updatedAt
-  name       String             @db.VarChar(60)
-  path       String             @db.VarChar(255)
-  published  Boolean            @default(false)
-  owner      User               @relation(fields: [ownerId], references: [id])
+  id         Int        @id @default(autoincrement())
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  name       String     @db.VarChar(60)
+  path       String
+  owner      User       @relation(fields: [ownerId], references: [id])
   ownerId    Int
-  categories CategoriesOnLink[]
+  categories Category[]
+  icon       String?
+  isDeleted  Boolean    @default(false)
 }
 
 model Category {
-  id    Int                @id @default(autoincrement())
-  name  String             @db.VarChar(60)
-  links CategoriesOnLink[]
-}
-
-model CategoriesOnLink {
-  link       Link     @relation(fields: [linkId], references: [id])
-  linkId     Int // relation scalar field (used in the `@relation` attribute above)
-  category   Category @relation(fields: [categoryId], references: [id])
-  categoryId Int // relation scalar field (used in the `@relation` attribute above)
-
-  @@id([linkId, categoryId])
+  id        Int     @id @default(autoincrement())
+  name      String  @db.VarChar(60)
+  links     Link[]
+  isDeleted Boolean @default(false)
 }
 
 model Profile {
@@ -50,6 +43,6 @@ model User {
   firstName String?
   lastName  String?
   password  String
-  posts     Link[]
+  links     Link[]
   profile   Profile?
 }

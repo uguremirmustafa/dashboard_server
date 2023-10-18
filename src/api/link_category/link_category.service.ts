@@ -1,8 +1,15 @@
 import db from '@/db';
-import { Ingredient, IngredientWithId } from '@/lib/types';
 
 export async function getAllCategories() {
-  return db.category.findMany();
+  const items = await db.category.findMany({
+    where: { isDeleted: false },
+    select: {
+      id: true,
+      name: true,
+      _count: { select: { links: { where: { isDeleted: false } } } },
+    },
+  });
+  return items.sort((a, b) => b._count.links - a._count.links);
 }
 
 // export async function getIngredientsUnderCategory(categoryId: number) {

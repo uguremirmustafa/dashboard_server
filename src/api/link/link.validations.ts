@@ -4,10 +4,14 @@ import { ID, Search, CategoryId, LinkItemWithCategoryIdList } from '@/lib/schema
 export const validateCreateLinkBody = validateRequest({
   body: LinkItemWithCategoryIdList,
 });
+export const validateUpdateLink = validateRequest({
+  body: LinkItemWithCategoryIdList,
+  params: ID,
+});
 export const validateGetAllUnderCategory = validateRequest({
   params: CategoryId,
 });
-export const validateDeleteIngredientParams = validateRequest({
+export const validateDeleteParams = validateRequest({
   params: ID,
 });
 export const validateSearchIngredientQuery = validateRequest({

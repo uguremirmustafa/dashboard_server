@@ -1,20 +1,40 @@
 import db from '@/db';
-import { LinkItem, LinkItemWithCategoryIdList, User, UserWithId } from '@/lib/types';
+import { LinkItemWithCategoryIdList, UserWithId } from '@/lib/types';
 
 export async function getLinksUnderCategory(categoryId: number) {
-  return db.link.findMany({
+  const items = db.link.findMany({
     where: {
+      isDeleted: false,
       categories: {
         some: {
-          category: {
-            id: {
-              equals: categoryId,
-            },
-          },
+          id: categoryId,
         },
       },
     },
+    select: {
+      id: true,
+      name: true,
+      path: true,
+      icon: true,
+      categories: {
+        select: {
+          name: true,
+          id: true,
+        },
+      },
+    },
+    orderBy: {
+      updatedAt: 'desc',
+    },
   });
+  const linksWithCategoryOptions: LinkItemWithCategoryIdList[] = (await items).map((x) => ({
+    id: x.id,
+    name: x.name,
+    path: x.path,
+    icon: x.icon ?? '',
+    categoryIds: x.categories.map((a) => ({ label: a.name, value: a.id })),
+  }));
+  return linksWithCategoryOptions;
 }
 
 export async function createLink(data: LinkItemWithCategoryIdList, userId: UserWithId['id']) {
@@ -24,8 +44,9 @@ export async function createLink(data: LinkItemWithCategoryIdList, userId: UserW
         name: data.name,
         path: data.path,
         ownerId: userId,
+        icon: data.icon,
         categories: {
-          create: data.categoryIds.map((x) => ({ categoryId: x.value })),
+          connect: data.categoryIds.map((x) => ({ id: x.value })),
         },
       },
     });
@@ -33,45 +54,67 @@ export async function createLink(data: LinkItemWithCategoryIdList, userId: UserW
     if (res) {
       return res;
     } else {
-      throw new Error('sth went wrong while creating link');
+      throw new Error('sth went wrong while creating item');
     }
   } catch (error) {
-    throw new Error('sth went wrong while creating link');
+    throw new Error('sth went wrong while creating item');
   }
 }
 
-// export async function updateIngredient(data: Ingredient, id: IngredientWithId['id']) {
-//   try {
-//     const res = await db
-//       .update({
-//         name: data.name,
-//         description: data.description,
-//         food_category_id: data.food_category_id,
-//         image: data.image,
-//       })
-//       .into('ingredient')
-//       .where({ id })
-//       .returning('*');
+export async function updateLink(
+  data: LinkItemWithCategoryIdList,
+  id: LinkItemWithCategoryIdList['id'],
+  userId: UserWithId['id']
+) {
+  try {
+    const link = await db.link.findFirst({
+      include: {
+        categories: true,
+      },
+    });
 
-//     if (res.length && res.length === 1) {
-//       return res[0];
-//     } else {
-//       throw new Error('sth went wrong while creating ingredient');
-//     }
-//   } catch (error) {
-//     throw new Error('sth went wrong while creating ingredient');
-//   }
-// }
+    const newCategories = data.categoryIds.map((x) => x.value);
 
-// export async function deleteIngredient(id: number) {
-//   try {
-//     const res = await db('ingredient').delete().where({ id });
-//     if (res === 1) {
-//       return true;
-//     } else {
-//       throw new Error('sth went wrong while deleting the ingredient');
-//     }
-//   } catch (error) {
-//     throw new Error('sth went wrong while deleting the ingredient');
-//   }
-// }
+    const currentCategories = link?.categories.map((x) => x.id) ?? [];
+    const categoriesToBeDeleted =
+      currentCategories?.filter((x) => !newCategories.includes(x)) ?? [];
+    const categoriesToBeAdded = newCategories?.filter((x) => !currentCategories.includes(x)) ?? [];
+
+    const res = await db.link.update({
+      where: {
+        id: id,
+      },
+      data: {
+        name: data.name,
+        path: data.path,
+        ownerId: userId,
+        icon: data.icon,
+        categories: {
+          connect: categoriesToBeAdded.map((x) => ({ id: x })),
+          disconnect: categoriesToBeDeleted.map((x) => ({ id: x })),
+        },
+      },
+    });
+
+    if (res) {
+      return res;
+    } else {
+      throw new Error('sth went wrong while updating item');
+    }
+  } catch (error) {
+    throw new Error('sth went wrong while updating item');
+  }
+}
+
+export async function deleteLink(id: number) {
+  try {
+    const res = await db.link.update({ where: { id: id }, data: { isDeleted: true } });
+    if (res) {
+      return true;
+    } else {
+      throw new Error('sth went wrong while deleting the item');
+    }
+  } catch (error) {
+    throw new Error('sth went wrong while deleting the item');
+  }
+}
