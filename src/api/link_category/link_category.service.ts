@@ -1,4 +1,5 @@
 import db from '@/db';
+import { Category } from '@/lib/types';
 
 export async function getAllCategories() {
   const items = await db.category.findMany({
@@ -10,6 +11,15 @@ export async function getAllCategories() {
     },
   });
   return items.sort((a, b) => b._count.links - a._count.links);
+}
+
+export async function createCategory(category: Category) {
+  const result = await db.category.create({
+    data: {
+      name: category.name,
+    },
+  });
+  return result;
 }
 
 // export async function getIngredientsUnderCategory(categoryId: number) {

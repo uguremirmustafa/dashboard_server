@@ -23,6 +23,7 @@ import {
   Credentials,
   Category,
   CategoryWithId,
+  CategoryWithLinkCounts,
 } from './schemas/schemas';
 
 // id
@@ -44,6 +45,7 @@ export type Credentials = z.infer<typeof Credentials>;
 // food_category
 export type Category = z.infer<typeof Category>;
 export type CategoryWithId = z.infer<typeof CategoryWithId>;
+export type CategoryWithLinkCounts = z.infer<typeof CategoryWithLinkCounts>;
 
 // ingredient
 export type IngredientParams = z.infer<typeof ID>;

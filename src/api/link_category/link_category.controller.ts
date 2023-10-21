@@ -6,9 +6,8 @@ import { NextFunction, Request, Response } from 'express';
 //   updateIngredient,
 //   getIngredientsSearch,
 // } from './link_category.service';
-import { BoolResponse } from '@/lib/interfaces/BoolResponse';
-import { BaseIngredient, ID, Ingredient, IngredientParams, Search } from '@/lib/types';
-import { getAllCategories } from './link_category.service';
+import { Category, CategoryWithId } from '@/lib/types';
+import { createCategory, getAllCategories } from './link_category.service';
 
 export async function getAll(req: Request, res: Response, next: NextFunction) {
   try {
@@ -19,29 +18,15 @@ export async function getAll(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-// export async function getAllUnderCategory(
-//   req: Request,
-//   res: Response<Ingredient[]>,
-//   next: NextFunction
-// ) {
-//   try {
-//     const params = req.params as unknown as ID;
-//     const ingredients = await getIngredientsUnderCategory(params.id);
-//     res.json(ingredients);
-//   } catch (error) {
-//     next(error);
-//   }
-// }
-
-// export async function createOne(req: Request, res: Response<Ingredient>, next: NextFunction) {
-//   try {
-//     const body = req.body as Ingredient;
-//     const newIngredient = await createIngredient(body);
-//     res.json(newIngredient);
-//   } catch (error) {
-//     next(error);
-//   }
-// }
+export async function createOne(req: Request, res: Response<CategoryWithId>, next: NextFunction) {
+  try {
+    const body = req.body as Category;
+    const item = await createCategory(body);
+    res.json(item);
+  } catch (error) {
+    next(error);
+  }
+}
 
 // export async function updateOne(req: Request, res: Response<Ingredient>, next: NextFunction) {
 //   try {

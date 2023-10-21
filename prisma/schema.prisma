@@ -25,7 +25,7 @@ model Link {
 
 model Category {
   id        Int     @id @default(autoincrement())
-  name      String  @db.VarChar(60)
+  name      String  @unique @db.VarChar(60)
   links     Link[]
   isDeleted Boolean @default(false)
 }
