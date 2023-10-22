@@ -19,6 +19,7 @@ export async function registerHandler(
 ) {
   try {
     const userBody = req.body;
+    console.log('userBody', userBody);
     const registeredUser = await registerUser(userBody);
     res.json(registeredUser);
   } catch (error) {
