@@ -29,7 +29,7 @@ export async function getUsers() {
   return res;
 }
 export async function getUserByEmail(email: User['email']) {
-  return db.user.findFirstOrThrow({ where: { email } });
+  return db.user.findFirst({ where: { email } });
 }
 export async function getUser(email: User['email']) {
   return getUserByEmail(email);

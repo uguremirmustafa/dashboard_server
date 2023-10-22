@@ -3,7 +3,18 @@ import { Category } from '@/lib/types';
 
 export async function getAllCategories() {
   const items = await db.category.findMany({
-    where: { isDeleted: false },
+    where: {
+      OR: [
+        {
+          isDeleted: false,
+        },
+        {
+          name: {
+            equals: '❤ favorites',
+          },
+        },
+      ],
+    },
     select: {
       id: true,
       name: true,

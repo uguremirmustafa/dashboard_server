@@ -1,5 +1,10 @@
 import db from '@/db';
-import { LinkItemWithCategoryIdList, UserWithId } from '@/lib/types';
+import {
+  LinkImportList,
+  LinkItemWithCategoryIdList,
+  LinkItemWithCategoryNames,
+  UserWithId,
+} from '@/lib/types';
 
 export async function getLinksUnderCategory(categoryId: number) {
   const items = db.link.findMany({
@@ -33,6 +38,7 @@ export async function getLinksUnderCategory(categoryId: number) {
     path: x.path,
     icon: x.icon ?? '',
     categoryIds: x.categories.map((a) => ({ label: a.name, value: a.id })),
+    isDeleted: false,
   }));
   return linksWithCategoryOptions;
 }
@@ -116,5 +122,62 @@ export async function deleteLink(id: number) {
     }
   } catch (error) {
     throw new Error('sth went wrong while deleting the item');
+  }
+}
+
+export async function importLinks(linkList: LinkImportList, userId: UserWithId['id']) {
+  try {
+    // const categoryNames: string[] = [];
+    // linkList.links.forEach((x) => {
+    //   x.categories.forEach((c) => {
+    //     categoryNames.push(c);
+    //   });
+    // });
+
+    // const uniqueCategoryNames = Array.from(new Set(categoryNames));
+
+    // const categories = await db.category.createMany({
+    //   data: uniqueCategoryNames.map((x) => ({ name: x })),
+    //   skipDuplicates: true,
+    // });
+
+    const promises = linkList.links.map((x) => {
+      return db.link.upsert({
+        create: {
+          name: x.name,
+          path: x.path,
+          ownerId: userId,
+          isDeleted: x.isDeleted,
+          categories: {
+            connectOrCreate: x.categories.map((c) => ({
+              create: { name: c, isDeleted: false },
+              where: { name: c },
+            })),
+          },
+        },
+        update: {
+          name: x.name,
+          path: x.path,
+          ownerId: userId,
+          categories: {
+            connectOrCreate: x.categories.map((c) => ({
+              create: { name: c, isDeleted: false },
+              where: { name: c },
+            })),
+          },
+          isDeleted: x.isDeleted,
+        },
+        where: {
+          name: x.name,
+        },
+      });
+    });
+
+    const result = await db.$transaction(promises);
+
+    return result;
+  } catch (error) {
+    throw new Error(JSON.stringify(error));
+    // throw new Error('sth went wrong while importing the list');
   }
 }

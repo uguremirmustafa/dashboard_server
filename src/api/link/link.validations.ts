@@ -1,8 +1,18 @@
 import { validateRequest } from '@/lib/middlewares/middlewares';
-import { ID, Search, CategoryId, LinkItemWithCategoryIdList } from '@/lib/schemas/schemas';
+import {
+  ID,
+  Search,
+  CategoryId,
+  LinkItemWithCategoryIdList,
+  LinkItemWithCategoryNames,
+  LinkImportList,
+} from '@/lib/schemas/schemas';
 
 export const validateCreateLinkBody = validateRequest({
   body: LinkItemWithCategoryIdList,
+});
+export const validateImportLinkWithCategoriesBody = validateRequest({
+  body: LinkImportList,
 });
 export const validateUpdateLink = validateRequest({
   body: LinkItemWithCategoryIdList,
