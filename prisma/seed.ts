@@ -1,10 +1,4 @@
 import { PrismaClient } from '@prisma/client';
-
-const ximmioLinks = [
-  { name: 'some shit', path: 'https://devugur.com', ownerId: 1 },
-  { name: 'some shit 2', path: 'https://devugurdasda.com', ownerId: 1 },
-];
-
 const prisma = new PrismaClient();
 async function main() {
   const deleteAllLinks = await prisma.link.deleteMany({});

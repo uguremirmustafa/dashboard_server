@@ -1,5 +1,10 @@
 import db from '@/db';
-import { LinkImportList, LinkItemWithCategoryIdList, UserWithId } from '@/lib/types';
+import {
+  LinkImportList,
+  LinkItemWithCategoryIdList,
+  LinkItemWithCategoryNames,
+  UserWithId,
+} from '@/lib/types';
 
 export async function getLinksUnderCategory(categoryId: number) {
   const items = db.link.findMany({
