@@ -5,7 +5,6 @@ import {
   ID,
   LinkImportList,
   LinkItemWithCategoryIdList,
-  LinkItemWithCategoryNames,
   UserWithId,
 } from '@/lib/types';
 import {

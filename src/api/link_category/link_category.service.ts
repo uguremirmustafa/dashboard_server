@@ -1,5 +1,5 @@
 import db from '@/db';
-import { Category } from '@/lib/types';
+import { Category, CategoryWithId, UserWithId } from '@/lib/types';
 
 export async function getAllCategories() {
   const items = await db.category.findMany({
@@ -24,13 +24,36 @@ export async function getAllCategories() {
   return items.sort((a, b) => b._count.links - a._count.links);
 }
 
-export async function createCategory(category: Category) {
+export async function createCategory(category: Category, ownerId: UserWithId['id']) {
+  console.log('category', category);
+  console.log('ownerId', ownerId);
   const result = await db.category.create({
     data: {
       name: category.name,
+      ownerId,
     },
   });
   return result;
+}
+
+export async function updateCategory(category: Category, id: CategoryWithId['id']) {
+  const result = await db.category.update({
+    data: { name: category.name, isDeleted: false },
+    where: { id },
+  });
+  return result;
+}
+export async function deleteCategory(id: number) {
+  try {
+    const res = await db.category.update({ where: { id: id }, data: { isDeleted: true } });
+    if (res) {
+      return id;
+    } else {
+      throw new Error('sth went wrong while deleting the item');
+    }
+  } catch (error) {
+    throw new Error('sth went wrong while deleting the item');
+  }
 }
 
 // export async function getIngredientsUnderCategory(categoryId: number) {
@@ -89,18 +112,5 @@ export async function createCategory(category: Category) {
 //     }
 //   } catch (error) {
 //     throw new Error('sth went wrong while creating ingredient');
-//   }
-// }
-
-// export async function deleteIngredient(id: number) {
-//   try {
-//     const res = await db('ingredient').delete().where({ id });
-//     if (res === 1) {
-//       return true;
-//     } else {
-//       throw new Error('sth went wrong while deleting the ingredient');
-//     }
-//   } catch (error) {
-//     throw new Error('sth went wrong while deleting the ingredient');
 //   }
 // }

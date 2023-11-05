@@ -1,4 +1,10 @@
 import { PrismaClient } from '@prisma/client';
+
+const ximmioLinks = [
+  { name: 'some shit', path: 'https://devugur.com', ownerId: 1 },
+  { name: 'some shit 2', path: 'https://devugurdasda.com', ownerId: 1 },
+];
+
 const prisma = new PrismaClient();
 async function main() {
   const deleteAllLinks = await prisma.link.deleteMany({});
@@ -8,16 +14,28 @@ async function main() {
 
   const categories = await prisma.category.createMany({
     data: [
-      { name: '❤ favorites', id: 1 },
-      { name: '🏠 ximmio modules - local', id: 2 },
-      { name: '💻 ximmio modules - dev', id: 3 },
-      { name: '🧪 ximmio modules - accp', id: 4 },
-      { name: '🌆 ximmio modules - prod', id: 5 },
-      { name: '🛬 ximmio platforms', id: 6 },
+      { name: '❤ favorites', id: 1, ownerId: 1 },
+      { name: '🏠 ximmio modules - local', id: 2, ownerId: 1 },
+      { name: '💻 ximmio modules - dev', id: 3, ownerId: 1 },
+      { name: '🧪 ximmio modules - accp', id: 4, ownerId: 1 },
+      { name: '🌆 ximmio modules - prod', id: 5, ownerId: 1 },
+      { name: '🛬 ximmio platforms', id: 6, ownerId: 1 },
     ],
   });
   console.log('create categories', categories);
+
+  // const promises = ximmioLinks.map((x) => {
+  //   return prisma.link.create({
+  //     data: {
+  //       name: x.name,
+  //       path: x.path,
+  //       ownerId: x.ownerId,
+  //       categories:{}
+  //     },
+  //   });
+  // });
 }
+
 main()
   .then(async () => {
     await prisma.$disconnect();

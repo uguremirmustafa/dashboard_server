@@ -25,9 +25,13 @@ model Link {
 
 model Category {
   id        Int     @id @default(autoincrement())
-  name      String  @unique @db.VarChar(60)
+  name      String  @db.VarChar(60)
+  owner     User    @relation(fields: [ownerId], references: [id])
+  ownerId   Int
   links     Link[]
   isDeleted Boolean @default(false)
+
+  @@unique([ownerId, name], name: "userCategoryUnique")
 }
 
 model Profile {
@@ -38,11 +42,12 @@ model Profile {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
+  id        Int        @id @default(autoincrement())
+  email     String     @unique
   firstName String?
   lastName  String?
   password  String
   links     Link[]
   profile   Profile?
+  Category  Category[]
 }

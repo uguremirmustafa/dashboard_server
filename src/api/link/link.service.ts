@@ -1,10 +1,5 @@
 import db from '@/db';
-import {
-  LinkImportList,
-  LinkItemWithCategoryIdList,
-  LinkItemWithCategoryNames,
-  UserWithId,
-} from '@/lib/types';
+import { LinkImportList, LinkItemWithCategoryIdList, UserWithId } from '@/lib/types';
 
 export async function getLinksUnderCategory(categoryId: number) {
   const items = db.link.findMany({
@@ -76,6 +71,9 @@ export async function updateLink(
     const link = await db.link.findFirst({
       include: {
         categories: true,
+      },
+      where: {
+        id,
       },
     });
 
@@ -150,8 +148,10 @@ export async function importLinks(linkList: LinkImportList, userId: UserWithId['
           isDeleted: x.isDeleted,
           categories: {
             connectOrCreate: x.categories.map((c) => ({
-              create: { name: c, isDeleted: false },
-              where: { name: c },
+              create: { name: c, ownerId: userId, isDeleted: false },
+              where: {
+                userCategoryUnique: { name: c, ownerId: userId },
+              },
             })),
           },
         },
@@ -161,8 +161,10 @@ export async function importLinks(linkList: LinkImportList, userId: UserWithId['
           ownerId: userId,
           categories: {
             connectOrCreate: x.categories.map((c) => ({
-              create: { name: c, isDeleted: false },
-              where: { name: c },
+              create: { name: c, ownerId: userId, isDeleted: false },
+              where: {
+                userCategoryUnique: { name: c, ownerId: userId },
+              },
             })),
           },
           isDeleted: x.isDeleted,
